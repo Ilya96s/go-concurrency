@@ -3,14 +3,21 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"in-memory-kv/compute"
-	"in-memory-kv/storage"
+	"go.uber.org/zap"
+	"in-memory-kv/internal/compute"
+	"in-memory-kv/internal/storage"
 	"os"
 )
 
 func main() {
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Sync()
+
 	engine := storage.NewMemoryEngine()
-	computeLayer := compute.NewCompute(engine)
+	computeLayer := compute.NewCompute(engine, logger)
 
 	fmt.Println("In-Memory KV database (Type EXIT to quit)")
 	fmt.Println("query = set_command | get_command | del_command")
