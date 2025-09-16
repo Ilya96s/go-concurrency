@@ -5,7 +5,6 @@ import (
 	"in-memory-kv/internal/storage"
 )
 
-// Связывает parser и storage
 // Compute — связывает parser и storage
 type Compute struct {
 	engine storage.Engine

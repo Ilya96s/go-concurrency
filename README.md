@@ -1,6 +1,6 @@
-# In-Memory Key-Value Database (Homework #1)
+# In-Memory Key-Value Database (Homework #1 & #2)
 
-Это простая in-memory key-value база данных, написанная на Go.  
+Это простая **in-memory key-value база данных**, написанная на Go.  
 База поддерживает три команды:
 
 - `SET key value` — сохранить значение по ключу
@@ -15,21 +15,53 @@
 
 Проект построен по многослойной архитектуре:
 
-- **compute/** — слой обработки запросов
-    - `parser.go` — парсер команд (строка → структура Command)
-    - `compute.go` — обработчик, связывает parser и storage
+- **internal/compute/** — слой обработки запросов
+  - `parser.go` — парсер команд (строка → структура Command)
+  - `compute.go` — обработчик, связывает parser и storage
 
-- **storage/** — слой хранения данных
-    - `engine.go` — интерфейс Engine
-    - `memory.go` — реализация in-memory на основе `map[string]string`
+- **internal/storage/** — слой хранения данных
+  - `engine.go` — интерфейс Engine
+  - `memory.go` — реализация in-memory на основе `map[string]string`
 
-- **main.go** — точка входа, CLI интерфейс
+- **internal/network/** — TCP-сервер
+  - `server.go` — слушает входящие TCP-соединения, обрабатывает команды через Compute, поддерживает ограничение числа клиентов
+
+- **internal/config/** — конфигурация
+  - Чтение YAML-файла, дефолтные значения
+
+- **internal/logger/** — логирование
+  - Настройка zap на основе конфигурации
+
+- **cmd/** — точка входа:
+  - `server/main.go` — запуск TCP-сервера
+  - `client/main.go` — CLI для клиента
 
 ---
 
-## 🚀 Запуск
+## 🏗 Схема архитектуры
 
-Клонируем репозиторий и запускаем:
-
-```bash
-go run .
+```text
+          ┌────────────┐
+          │   CLI/     │
+          │  Client    │
+          └─────┬──────┘
+                │ TCP
+                ▼
+          ┌────────────┐
+          │  Network/  │
+          │  Server    │
+          │ (server.go)│
+          └─────┬──────┘
+                │
+                ▼
+          ┌────────────┐
+          │  Compute   │
+          │ (compute)  │
+          │ (Handle)   │
+          └─────┬──────┘
+                │
+                ▼
+          ┌────────────┐
+          │  Storage   │
+          │ (Memory)   │
+          └────────────┘
